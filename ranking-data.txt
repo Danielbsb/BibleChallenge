@@ -3,3 +3,4 @@ Bible Challenge
 Otto, 1
 Thaila, 0
 Liz, 20
+Teste, 10

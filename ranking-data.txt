@@ -5,3 +5,4 @@ Thaila, 0
 Liz, 0
 Gustavo, 10
 Sheila, 2
+Fulano, 10

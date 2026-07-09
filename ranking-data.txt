@@ -3,4 +3,4 @@ Bible Challenge
 Otto, 1
 Thaila, 0
 Liz, 0
-Gustavo, 0
+Gustavo, 1

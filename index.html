@@ -294,6 +294,107 @@
     font-size: 0.8rem;
   }
 
+  /* IMPORT PANEL */
+  .import-toggle{
+    display:flex;
+    justify-content:center;
+    margin-bottom: 28px;
+  }
+
+  .import-btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 0.9rem;
+    color: var(--bg-deep);
+    background: linear-gradient(90deg, var(--cyan), var(--yellow));
+    border:none;
+    padding: 11px 22px;
+    border-radius: 999px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    box-shadow: 0 8px 24px rgba(0,230,210,0.25);
+    transition: transform 0.15s ease;
+  }
+  .import-btn:hover{ transform: translateY(-2px); }
+
+  .import-panel{
+    max-width: 640px;
+    margin: 0 auto 40px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 22px;
+    display:none;
+  }
+  .import-panel.open{ display:block; animation: slide-in 0.3s ease both; }
+
+  .import-panel label{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 0.9rem;
+    display:block;
+    margin-bottom: 6px;
+  }
+
+  .import-panel .hint{
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0 0 12px;
+    line-height:1.5;
+  }
+  .import-panel .hint code{
+    background: rgba(255,255,255,0.1);
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: var(--yellow);
+  }
+
+  .import-panel textarea{
+    width:100%;
+    min-height: 100px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    color: var(--text-light);
+    font-family:'Poppins', sans-serif;
+    font-size: 0.9rem;
+    padding: 12px;
+    resize: vertical;
+  }
+  .import-panel textarea:focus{
+    outline: none;
+    border-color: var(--cyan);
+  }
+
+  .import-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top: 14px;
+  }
+
+  .btn-apply{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 0.88rem;
+    color: var(--bg-deep);
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    border:none;
+    padding: 9px 18px;
+    border-radius: 999px;
+    cursor:pointer;
+  }
+
+  .import-status{
+    font-size: 0.78rem;
+    margin-top: 10px;
+    min-height: 1em;
+  }
+  .import-status.ok{ color: var(--cyan); }
+  .import-status.err{ color: var(--pink); }
+
   @media (max-width: 620px){
     .podium{ grid-template-columns: 1fr 1fr 1fr; gap:8px; }
     .podium-card.first{ transform: scale(1.02); }
@@ -317,10 +418,28 @@
 <div class="wrap">
 
   <header>
-    <span class="eyebrow">⚡ Adolescentes - IB - 2026</span>
+    <span class="eyebrow">⚡ Temporada 2026</span>
     <h1>BIBLE CHALLENGE</h1>
-    <p class="subtitle">Ranking oficial -  <strong> quem está no topo essa semana?</strong> 🔥</p>
+    <p class="subtitle">Ranking oficial dos <strong>campeões</strong> — quem está brilhando essa semana? 🔥</p>
   </header>
+
+  <div class="import-toggle">
+    <button class="import-btn" id="toggleImport" type="button">📝 Importar do app Notes</button>
+  </div>
+
+  <div class="import-panel" id="importPanel">
+    <label for="notesInput">Cole aqui o conteúdo copiado do Notes</label>
+    <p class="hint">
+      Formato aceito: <code>Aluno1, 200; Aluno2, 250</code> ou uma linha por aluno, tipo:<br>
+      <code>Aluno1, 200</code><br><code>Aluno2, 250</code><br>
+      No iPhone: abra a nota, selecione o texto, toque em <strong>Copiar</strong>, volte aqui e cole na caixa abaixo.
+    </p>
+    <textarea id="notesInput" placeholder="Rafael Souza, 980; Ana Beatriz, 940; Lucas Martins, 905"></textarea>
+    <div class="import-actions">
+      <button class="btn-apply" id="applyImport" type="button">Atualizar ranking</button>
+    </div>
+    <div class="import-status" id="importStatus"></div>
+  </div>
 
   <section class="podium" id="podium"></section>
 
@@ -405,12 +524,112 @@
     }).join("");
   }
 
-  render();
+  const STORAGE_KEY = "bible-challenge-ranking";
+  const hasCloudStorage = typeof window.storage !== "undefined";
+
+  // Converte o texto do Notes em lista de alunos.
+  // Aceita entradas separadas por ";" OU por quebra de linha:
+  //   "Aluno1, 200; Aluno2, 250"      -> funciona
+  //   "Aluno1, 200\nAluno2, 250"      -> também funciona
+  function parseNotesText(text){
+    const entries = text.split(/[;\n]+/).map(e => e.trim()).filter(Boolean);
+    const parsed = [];
+    for(const entry of entries){
+      const parts = entry.split(",");
+      if(parts.length < 2) continue;
+      const name = parts[0].trim();
+      const score = parseInt(parts.slice(1).join(",").trim(), 10);
+      if(!name || isNaN(score)) continue;
+      parsed.push({ name, score });
+    }
+    return parsed;
+  }
+
+  async function saveRanking(data){
+    try{
+      if(hasCloudStorage){
+        await window.storage.set(STORAGE_KEY, JSON.stringify(data), false);
+      }else{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+    }catch(e){ console.error("Falha ao salvar:", e); }
+  }
+
+  async function loadRanking(){
+    try{
+      if(hasCloudStorage){
+        const result = await window.storage.get(STORAGE_KEY, false);
+        if(result && result.value) return JSON.parse(result.value);
+      }else{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw) return JSON.parse(raw);
+      }
+    }catch(e){
+      // nenhuma chave salva ainda — mantém os dados de exemplo
+    }
+    return null;
+  }
+
+  // Lê dados vindos pela URL, usados pelo Atalho do iPhone.
+  // Formato: ?data=Aluno1%2C%20200%3BAluno2%2C%20250
+  function getDataFromURL(){
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("data");
+    if(!raw) return null;
+    try{
+      return decodeURIComponent(raw);
+    }catch(e){
+      return raw;
+    }
+  }
+
+  function setStatus(msg, type){
+    const el = document.getElementById('importStatus');
+    el.textContent = msg;
+    el.className = "import-status " + (type || "");
+  }
+
+  document.getElementById('toggleImport').addEventListener('click', () => {
+    document.getElementById('importPanel').classList.toggle('open');
+  });
+
+  document.getElementById('applyImport').addEventListener('click', async () => {
+    const text = document.getElementById('notesInput').value;
+    const parsed = parseNotesText(text);
+    if(parsed.length === 0){
+      setStatus("Não encontrei nenhum aluno nesse formato. Confira o exemplo acima.", "err");
+      return;
+    }
+    students.length = 0;
+    students.push(...parsed);
+    render();
+    await saveRanking(students);
+    setStatus(`Ranking atualizado com ${parsed.length} aluno(s) ✅`, "ok");
+  });
+
+  (async function init(){
+    const urlText = getDataFromURL();
+
+    if(urlText){
+      const parsed = parseNotesText(urlText);
+      if(parsed.length){
+        students.length = 0;
+        students.push(...parsed);
+        await saveRanking(students);
+        render();
+        setStatus(`Ranking atualizado via Atalho com ${parsed.length} aluno(s) ✅`, "ok");
+        return;
+      }
+    }
+
+    const saved = await loadRanking();
+    if(saved && Array.isArray(saved) && saved.length){
+      students.length = 0;
+      students.push(...saved);
+    }
+    render();
+  })();
 </script>
 
 </body>
 </html>
-
-
-
-  

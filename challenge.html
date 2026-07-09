@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bible Challenge — Ranking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep: #150F3D;
+    --bg-mid: #1F1758;
+    --pink: #FF3E9D;
+    --yellow: #FFD400;
+    --cyan: #00E6D2;
+    --orange: #FF7A3D;
+    --purple: #8C5CFF;
+    --text-light: #FFF8ED;
+    --text-muted: #B9AEEA;
+    --card-bg: rgba(255,255,255,0.06);
+    --card-border: rgba(255,255,255,0.12);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(140,92,255,0.35), transparent 45%),
+      radial-gradient(circle at 90% 10%, rgba(255,62,157,0.25), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(0,230,210,0.18), transparent 45%),
+      var(--bg-deep);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-light);
+    overflow-x:hidden;
+  }
+
+  /* floating background shapes */
+  .bg-shape{
+    position:fixed;
+    border-radius:50%;
+    filter: blur(2px);
+    opacity:0.5;
+    z-index:0;
+    animation: float 9s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(-22px) rotate(12deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bg-shape, .podium-card, .row, .glow, .crown{ animation: none !important; }
+  }
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* HEADER */
+  header{
+    text-align:center;
+    margin-bottom: 46px;
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    padding: 7px 18px;
+    border-radius: 999px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: 0 6px 20px rgba(255,62,157,0.35);
+  }
+
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    line-height: 0.98;
+    margin: 18px 0 8px;
+    letter-spacing: -0.01em;
+    background: linear-gradient(95deg, var(--yellow), var(--pink) 55%, var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 60px rgba(255,212,0,0.25);
+  }
+
+  .subtitle{
+    color: var(--text-muted);
+    font-size: 1.02rem;
+    font-weight:500;
+  }
+
+  .subtitle strong{ color: var(--text-light); }
+
+  /* PODIUM */
+  .podium{
+    display:grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    align-items:end;
+    gap: 14px;
+    margin: 0 auto 56px;
+    max-width: 780px;
+  }
+
+  .podium-card{
+    position:relative;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 26px 14px 20px;
+    text-align:center;
+    backdrop-filter: blur(6px);
+    animation: pop-in 0.55s cubic-bezier(.22,1.2,.36,1) both;
+  }
+  .podium-card:nth-child(1){ animation-delay: 0.15s; }
+  .podium-card:nth-child(2){ animation-delay: 0s; }
+  .podium-card:nth-child(3){ animation-delay: 0.3s; }
+
+  @keyframes pop-in{
+    from{ opacity:0; transform: translateY(30px) scale(0.9); }
+    to{ opacity:1; transform: translateY(0) scale(1); }
+  }
+
+  .podium-card.first{
+    padding-top: 40px;
+    transform: scale(1.06);
+    border-color: rgba(255,212,0,0.5);
+    box-shadow: 0 20px 50px rgba(255,212,0,0.18);
+  }
+  .podium-card.second{ border-color: rgba(0,230,210,0.4); }
+  .podium-card.third{ border-color: rgba(255,122,61,0.4); }
+
+  .crown{
+    position:absolute;
+    top:-26px;
+    left:50%;
+    transform: translateX(-50%);
+    font-size: 1.8rem;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform: translateX(-50%) translateY(0); }
+    50%{ transform: translateX(-50%) translateY(-6px); }
+  }
+
+  .avatar{
+    width: 64px; height:64px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1.3rem;
+    color: var(--bg-deep);
+  }
+  .podium-card.first .avatar{ width:78px; height:78px; font-size:1.6rem; background: linear-gradient(135deg, var(--yellow), #FFA800); box-shadow: 0 0 0 4px rgba(255,212,0,0.25); }
+  .podium-card.second .avatar{ background: linear-gradient(135deg, var(--cyan), #00B7CC); }
+  .podium-card.third .avatar{ background: linear-gradient(135deg, var(--orange), #FF4D6D); }
+
+  .p-name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1.05rem;
+    margin: 2px 0 2px;
+  }
+  .podium-card.first .p-name{ font-size: 1.25rem; }
+
+  .p-champ{
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .p-score{
+    display:inline-block;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 1.3rem;
+    padding: 4px 16px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+  }
+  .podium-card.first .p-score{ color: var(--yellow); font-size:1.55rem; }
+  .podium-card.second .p-score{ color: var(--cyan); }
+  .podium-card.third .p-score{ color: var(--orange); }
+
+  .rank-tag{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  /* LIST */
+  .list-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin: 0 0 16px 6px;
+    display:flex; align-items:center; gap:8px;
+  }
+
+  .list{
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns: 44px 48px 1fr auto;
+    align-items:center;
+    gap: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 12px 18px;
+    animation: slide-in 0.45s ease both;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .row:hover{
+    transform: translateX(4px);
+    border-color: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.1);
+  }
+
+  @keyframes slide-in{
+    from{ opacity:0; transform: translateX(-16px); }
+    to{ opacity:1; transform: translateX(0); }
+  }
+
+  .row-rank{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    text-align:center;
+  }
+
+  .row-avatar{
+    width: 40px; height:40px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 0.95rem;
+    color: var(--bg-deep);
+  }
+
+  .row-info{ min-width:0; }
+  .row-name{
+    font-weight:600;
+    font-size: 0.98rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+  .row-champ{
+    font-size: 0.74rem;
+    color: var(--text-muted);
+  }
+
+  .row-score{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 1.1rem;
+    color: var(--yellow);
+    background: rgba(255,212,0,0.1);
+    padding: 5px 14px;
+    border-radius: 999px;
+    white-space:nowrap;
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 50px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 620px){
+    .podium{ grid-template-columns: 1fr 1fr 1fr; gap:8px; }
+    .podium-card.first{ transform: scale(1.02); }
+    .row{ grid-template-columns: 30px 40px 1fr auto; padding: 10px 12px; gap:10px; }
+    .row-champ{ display:none; }
+  }
+
+  /* keyboard focus visibility */
+  a:focus-visible, button:focus-visible{
+    outline: 3px solid var(--cyan);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-shape" style="width:120px;height:120px;top:8%;left:4%;background:radial-gradient(circle, var(--pink), transparent 70%);"></div>
+<div class="bg-shape" style="width:90px;height:90px;top:60%;left:88%;background:radial-gradient(circle, var(--cyan), transparent 70%); animation-delay:2s;"></div>
+<div class="bg-shape" style="width:70px;height:70px;top:80%;left:8%;background:radial-gradient(circle, var(--yellow), transparent 70%); animation-delay:4s;"></div>
+
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">⚡ Adolescentes - IB - 2026</span>
+    <h1>BIBLE CHALLENGE</h1>
+    <p class="subtitle">Ranking oficial -  <strong> quem está no topo essa semana?</strong> 🔥</p>
+  </header>
+
+  <section class="podium" id="podium"></section>
+
+  <h2 class="list-title">📋 Ranking completo</h2>
+  <div class="list" id="list"></div>
+
+  <footer>Bible Challenge · atualizado automaticamente a cada rodada</footer>
+
+</div>
+
+<script>
+  // ---- Dados de exemplo — troque pelos dados reais do seu campeonato ----
+  const championshipName = "Bible Challenge";
+
+  const students = [
+    { name: "Rafael Souza",   score: 980 },
+    { name: "Ana Beatriz",    score: 940 },
+    { name: "Lucas Martins",  score: 905 },
+    { name: "Isabela Costa",  score: 860 },
+    { name: "Pedro Henrique", score: 820 },
+    { name: "Maria Clara",    score: 795 },
+    { name: "Gabriel Lima",   score: 760 },
+    { name: "Julia Fernandes",score: 710 },
+    { name: "Enzo Almeida",   score: 680 },
+    { name: "Sofia Ribeiro",  score: 640 },
+  ];
+
+  const avatarPalette = [
+    "linear-gradient(135deg,#FF3E9D,#8C5CFF)",
+    "linear-gradient(135deg,#00E6D2,#00B7CC)",
+    "linear-gradient(135deg,#FFD400,#FFA800)",
+    "linear-gradient(135deg,#FF7A3D,#FF4D6D)",
+    "linear-gradient(135deg,#8C5CFF,#3E7CFF)",
+  ];
+
+  function initials(name){
+    return name.split(" ").filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join("");
+  }
+
+  function render(){
+    const sorted = [...students].sort((a,b) => b.score - a.score);
+    const podiumEl = document.getElementById('podium');
+    const listEl = document.getElementById('list');
+
+    const top3 = sorted.slice(0,3);
+    const rest = sorted.slice(3);
+
+    // Ordem visual do pódio: 2º, 1º, 3º
+    const order = [top3[1], top3[0], top3[2]];
+    const classNames = ["second", "first", "third"];
+    const ranks = [2, 1, 3];
+    const medal = ["🥈","👑","🥉"];
+
+    podiumEl.innerHTML = order.map((s, i) => {
+      if(!s) return "<div></div>";
+      return `
+        <div class="podium-card ${classNames[i]}">
+          <span class="crown">${medal[i]}</span>
+          <div class="rank-tag">${ranks[i]}º LUGAR</div>
+          <div class="avatar" style="background:${avatarPalette[i % avatarPalette.length]}">${initials(s.name)}</div>
+          <div class="p-name">${s.name}</div>
+          <div class="p-champ">${championshipName}</div>
+          <div class="p-score">${s.score} pts</div>
+        </div>
+      `;
+    }).join("");
+
+    listEl.innerHTML = rest.map((s, i) => {
+      const rank = i + 4;
+      const delay = (i * 0.06).toFixed(2);
+      return `
+        <div class="row" style="animation-delay:${delay}s">
+          <div class="row-rank">${rank}º</div>
+          <div class="row-avatar" style="background:${avatarPalette[i % avatarPalette.length]}">${initials(s.name)}</div>
+          <div class="row-info">
+            <div class="row-name">${s.name}</div>
+            <div class="row-champ">${championshipName}</div>
+          </div>
+          <div class="row-score">${s.score} pts</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  render();
+</script>
+
+</body>
+</html>
+
+
+
+  

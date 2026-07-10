@@ -1,6 +1,16 @@
 Bible Challenge
 
-Otto, 10
+Otto, 0
+Enrico, 0
+Miguel, 0
 Thaila, 0
-Liz, 2
-Daniel, 2
+Liz, 0
+Sofia, 0
+Maria, 0
+Davi Chaves, 0
+Davi Siqueira, 0
+Antonio, 0
+Rafael, 0
+
+
+

@@ -1,6 +1,6 @@
 Bible Challenge
 
-Otto, 0
+Otto, 2
 Enrico, 0
 Miguel, 0
 Isaac, 0
@@ -14,7 +14,7 @@ Maria, 0
 Davi Chaves, 0
 Davi Siqueira, 0
 Antonio, 0
-Rafael, 1
+Rafael, 0
 
 
 

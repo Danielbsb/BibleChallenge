@@ -3,13 +3,13 @@ Bible Challenge
 Otto, 0
 Enrico, 0
 Miguel, 0
-Isaac, 0
+Isaac, 2
 Guilherme, 0
 Tailla, 0
 Alice, 0
 Thiago, 0
 Liz, 0
-Sofia, 3
+Sofia, 5
 Maria, 0
 Davi Chaves, 0
 Davi Siqueira, 0
